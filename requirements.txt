@@ -1,0 +1,4 @@
+falkordb>=1.0
+fastapi
+uvicorn
+playwright  # only for scripts/shots.py
