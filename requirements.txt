@@ -1,4 +1,8 @@
 falkordb>=1.0
 fastapi
 uvicorn
-playwright  # only for scripts/shots.py
+pytest
+numpy
+tokenizers
+onnxruntime
+playwright  # only for scripts/shots.py (demo screenshots)

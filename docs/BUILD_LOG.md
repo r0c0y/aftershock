@@ -19,3 +19,10 @@
 - `tools.detail` added (one node: kind, label, status, rationale, owner, source doc). Tests: 2 -> 4, all passing.
 - Docs: README now states plainly what the A/B does and does not show; ARCHITECTURE.md and DECISIONS.md added;
   INSPIRATION.md EmbeddingGemma row corrected (script exists, not wired into the product).
+
+## Sat 17 Oct, ~15:25 IST - EmbeddingGemma wired into the UI, setup fixes
+- "Suggest edges" button: EmbeddingGemma-300m ranks candidate Decision/Answer -> Fact edges over the LIVE graph
+  (top-2 per item, existing edges excluded), drawn dotted and labelled unconfirmed; never written to the graph.
+  14 candidates on the seed. Endpoint returns 503 with instructions if the model files are missing.
+- Fixed requirements.txt (listed a nonexistent `embeddinggemma` package; real deps are onnxruntime, tokenizers, numpy).
+- README: model download instructions (models/ is gitignored); scripts/dev_up.sh bring-up script.

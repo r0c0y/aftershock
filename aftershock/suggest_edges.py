@@ -24,3 +24,22 @@ if __name__ == "__main__":
     r, hit, tot, sug = run()
     for x in r: print(x)
     print(f"seeded fact-edges recovered in top-2: {hit}/{tot}")
+
+def suggest_live(k=2):
+    """Same idea, but over the LIVE graph: for each Decision/Answer, rank Facts by cosine and
+    return candidate edges that do not already exist. Raises OSError if the model is not downloaded."""
+    from .db import graph, rows
+    g = graph()
+    facts = rows(g.query("MATCH (f:Fact) RETURN f.id AS id, f.text AS text"))
+    items = rows(g.query("MATCH (x) WHERE x:Decision OR x:Answer RETURN x.id AS id, coalesce(x.title, x.text) AS text"))
+    ex = {(r["s"], r["d"]) for r in rows(g.query("MATCH (x)-[:BASED_ON|DERIVED_FROM]->(f:Fact) RETURN x.id AS s, f.id AS d"))}
+    F = embed([f["text"] for f in facts])
+    out = []
+    for it in items:
+        q = embed([it["text"]], "query")[0]
+        sims = F @ q
+        for i in np.argsort(-sims)[:k]:
+            fid = facts[int(i)]["id"]
+            if (it["id"], fid) not in ex:
+                out.append({"src": it["id"], "dst": fid, "score": round(float(sims[int(i)]), 3)})
+    return out

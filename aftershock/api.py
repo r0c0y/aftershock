@@ -44,6 +44,15 @@ def correct(rejudge: bool = True):
     STATE.update(corrected=True, last=result)
     return {"events": events, **result}
 
+@app.get("/api/suggest_edges")
+def suggest_edges():
+    """EmbeddingGemma edge suggestions over the live graph (unconfirmed candidates only)."""
+    try:
+        from .suggest_edges import suggest_live
+        return {"suggested": suggest_live(), "model": "embeddinggemma-300m (ONNX int8, local CPU)"}
+    except (OSError, ImportError) as e:
+        return JSONResponse({"error": f"EmbeddingGemma model unavailable: {e}. See README for the download."}, 503)
+
 def _kw(q):
     return [w for w in tok(q) if len(w) > 2 and w not in {"what", "which", "how", "much", "does", "our", "we", "do", "pay", "take", "sales", "company"}]
 

@@ -31,12 +31,12 @@ input[type=text]{flex:1;background:#0d1117;color:var(--tx);border:1px solid var(
  <h1>Aftershock <span>fix one fact, find everything built on it</span></h1><div class="sp"></div>
  <span class="pill" id="llm">llm: ?</span><span class="pill" id="counts"></span>
  <div class="toggle"><span>Graph</span><div class="sw on" id="sw" title="Graph-off switch: answers use flat retrieval only"></div><span id="swl">ON</span></div>
- <button id="reset">Reset</button><button class="primary" id="go">Apply correction</button>
+ <button id="sug" title="EmbeddingGemma (local) ranks candidate edges that are not in the graph yet">Suggest edges</button> <button id="reset">Reset</button><button class="primary" id="go">Apply correction</button>
 </header>
 <main>
  <div class="col">
   <div class="card" id="gwrap"><h2>Company knowledge graph (FalkorDB, live)</h2><div class="body" style="padding:0;flex:1"><svg id="svg"></svg></div>
-   <div class="legend"><span><i class="dot" style="background:var(--fact)"></i>Fact</span><span><i class="dot" style="background:var(--dec)"></i>Decision</span><span><i class="dot" style="background:var(--ans)"></i>Answer</span><span><i class="dot" style="background:var(--task)"></i>Task</span><span style="color:var(--bad)">red ring = stale</span><span>grey dashed = superseded</span><span style="color:var(--warn)">amber = re-judged, changed</span></div></div>
+   <div class="legend"><span><i class="dot" style="background:var(--fact)"></i>Fact</span><span><i class="dot" style="background:var(--dec)"></i>Decision</span><span><i class="dot" style="background:var(--ans)"></i>Answer</span><span><i class="dot" style="background:var(--task)"></i>Task</span><span style="color:var(--bad)">red ring = stale</span><span>grey dashed = superseded</span><span style="color:var(--warn)">amber = re-judged, changed</span><span style="color:#58a6ff">dotted = EmbeddingGemma suggestion (unconfirmed)</span></div></div>
   <div class="card" style="height:190px"><h2>Agent trace</h2><div class="body trace" id="trace"><div style="color:var(--mut)">Waiting for a correction...</div></div></div>
  </div>
  <div class="col">
@@ -60,7 +60,8 @@ function layout(){const W=$('svg').clientWidth||700,H=$('svg').clientHeight||420
  draw()}
 function draw(){const hot=new Set(sel?sel.path.ids:[]);let s='<defs><marker id="ar" viewBox="0 0 8 8" refX="8" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L8,4L0,8z" fill="#586069"/></marker></defs>';
  for(const e of G.edges){const p=pos[e.src],q=pos[e.dst];if(!p||!q)continue;const h=hot.has(e.src)&&hot.has(e.dst);
-  s+=`<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" stroke="${e.type=='CORRECTED_BY'?'#d29922':h?'#58a6ff':'#3a424d'}" stroke-width="${h?2.5:1}" ${e.type=='CORRECTED_BY'?'stroke-dasharray="5 3"':''} marker-end="url(#ar)"/>`}
+  const sugE=e.type=='SUGGESTED';
+  s+=`<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" stroke="${e.type=='CORRECTED_BY'?'#d29922':sugE?'#58a6ff':h?'#58a6ff':'#3a424d'}" stroke-width="${h?2.5:1}" ${e.type=='CORRECTED_BY'?'stroke-dasharray="5 3"':sugE?'stroke-dasharray="2 3" opacity="0.7"':''} ${sugE?'':'marker-end="url(#ar)"'}><title>suggested ${e.score||''}</title></line>`}
  for(const n of G.nodes){const p=pos[n.id];const st=n.status;const ring=st=='stale'||st=='needs_human'?'#f85149':st=='rejudged_changed'?'#d29922':st=='rejudged_ok'?'#3fb950':'none';
   const sup=st=='superseded';s+=`<g><circle cx="${p.x}" cy="${p.y}" r="${n.kind=='Fact'?11:9}" fill="${sup?'#30363d':COL[n.kind]}" stroke="${ring}" stroke-width="3" ${sup?'stroke="#8b949e" stroke-dasharray="3 2"':''} opacity="${hot.size&&!hot.has(n.id)?.45:1}"/>
   <text x="${p.x+13}" y="${p.y+4}" fill="#c9d1d9" font-size="9.5"><title>${n.label.replace(/&/g,"&amp;")}</title>${short(n.label,22).replace(/&/g,'&amp;')}</text></g>`}
@@ -83,6 +84,9 @@ $('ask').onclick=async()=>{$('ansbox').innerHTML='<div class="note">thinking…<
  if(r.calls)h+='<div class="note">LLM tool calls: '+r.calls.map(c=>c.tool+'('+Object.values(c.args).join(', ')+')').join(' &rarr; ')+'</div>';
  if(r.chains)h+='<div class="note">downstream: '+r.chains.map(c=>c.kind+' '+c.id+' ('+(c.owner||'unassigned')+')').join(' · ')+'</div>';
  if(r.facts)h+='<div class="note">graph facts: '+r.facts.map(f=>f.id+' ['+f.sources.join(', ')+']').join(' · ')+'</div>';$('ansbox').innerHTML=h};
+$('sug').onclick=async()=>{const r=await j('/api/suggest_edges');if(r.error){alert(r.error);return}
+ G.edges=G.edges.filter(e=>e.type!='SUGGESTED').concat(r.suggested.map(x=>({src:x.src,dst:x.dst,type:'SUGGESTED',score:x.score})));draw();
+ $('trace').innerHTML=`<div><b>suggest_edges</b> ${r.suggested.length} candidate edges from ${r.model} (unconfirmed, not written to the graph)</div>`+$('trace').innerHTML};
 $('try1').onclick=e=>{e.preventDefault();$('q').value='Who owns the tasks affected by the Meridian commission change?';$('ask').click()};
 status().then(loadGraph);
 </script></body></html>

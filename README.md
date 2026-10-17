@@ -56,6 +56,10 @@ uvicorn aftershock.api:app --port 8000         # open http://localhost:8000
 python -m pytest tests
 ```
 
+Optional: the **Suggest edges** button runs EmbeddingGemma-300m locally (ONNX int8, CPU) to propose candidate edges
+(dotted, unconfirmed, never written to the graph). It needs the model files, which are not in the repo:
+`huggingface-cli download onnx-community/embeddinggemma-300m-ONNX --local-dir models/embeddinggemma` (~315 MB).
+
 ## Docs
 `docs/GRAPH_MODEL.md` schema and the Cypher for every tool · `docs/ARCHITECTURE.md` components and request flows ·
 `docs/DECISIONS.md` key design decisions · `docs/AB_EVAL.md` the graph on/off evaluation · `docs/REAL_VS_SEEDED.md` ·
