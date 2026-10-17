@@ -100,3 +100,8 @@ def unaffected(fact_id):
     hit = {n["id"] for n in blast_radius(fact_id)}
     rs = rows(graph().query("MATCH (x) WHERE x:Decision OR x:Answer OR x:Task RETURN x.id AS id, labels(x)[0] AS kind, coalesce(x.title,x.text) AS label"))
     return [r for r in rs if r["id"] not in hit]
+
+def detail(node_id):
+    """Tool 6. One node's kind, label, status, rationale, owner and source document."""
+    r = rows(graph().query(Q_DETAIL, {"id": node_id}))
+    return r[0] if r else {"error": f"no node with id {node_id}"}

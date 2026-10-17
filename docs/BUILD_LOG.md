@@ -7,3 +7,15 @@
   set (11 items, 8 facts), seed edges were authored by us knowing the text, 2 of 11 items had no direct fact edge but still got
   2 suggestions (precision is not claimed). This is a sanity check, not a benchmark. Role in product: suggest edges for human/agent confirmation.
 - No LLM key yet: re-judging reports needs_human.
+
+## Sat 17 Oct, ~15:20 IST - multi-hop Q&A and tool-calling loop
+- `qa.py`: graph-on Ask is now an LLM tool-calling loop. The model picks from 5 tools (current_facts, search_facts,
+  blast_radius, path_proof, node_detail - each a live Cypher query), may call up to 4, and must answer only from tool
+  results with node-id citations. UNTESTED against a real LLM: still no API key (vault approval pending), so this loop
+  has only been syntax- and fallback-tested. Will be verified or honestly reported when a key lands.
+- Extractive (no-key) fallback now answers multi-hop questions: "Who owns the tasks affected by the Meridian commission
+  change?" returns 4 decisions + 3 tasks with real owners via traversal. Graph-off on the same question retrieves the
+  unsigned draft contract and names no owner.
+- `tools.detail` added (one node: kind, label, status, rationale, owner, source doc). Tests: 2 -> 4, all passing.
+- Docs: README now states plainly what the A/B does and does not show; ARCHITECTURE.md and DECISIONS.md added;
+  INSPIRATION.md EmbeddingGemma row corrected (script exists, not wired into the product).

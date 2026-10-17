@@ -2,7 +2,7 @@ import os, re
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from . import agent, tools as T, seed_data as S
+from . import agent, qa, tools as T, seed_data as S
 from .db import graph, rows
 from .flat import Flat, tok
 from .llm import complete, provider, LLMUnavailable
@@ -59,6 +59,12 @@ def ask(q: str, graph_on: bool = True):
         except LLMUnavailable as e:
             out["answer"] = f"(no LLM configured; top retrieved passage: {hits[0]['body'][:240]}...)"; out["answer_by"] = "none"
         return out
+    try:
+        out = qa.answer(q)  # LLM calls the live Cypher tools and answers from their results only
+        return {"mode": "graph (LLM tool-calling over live Cypher)", "answer": out["answer"],
+                "answer_by": out["by"], "calls": out["calls"]}
+    except LLMUnavailable:
+        pass  # no key: fall through to the extractive answer, labelled as such
     kws = _kw(q)
     g = graph()
     facts = rows(g.query("MATCH (f:Fact) WHERE f.status = 'current' "
@@ -66,13 +72,25 @@ def ask(q: str, graph_on: bool = True):
                          "OPTIONAL MATCH (f)-[:STATED_IN]->(d:Document) "
                          "RETURN f.id AS id, f.text AS text, hits, collect(d.id + ' (' + d.state + ')') AS sources ORDER BY hits DESC LIMIT 2", {"kws": kws}))
     dependents = {f["id"]: [(n["id"], n["kind"]) for n in T.blast_radius(f["id"])] for f in facts}
-    out = {"mode": "graph (Cypher: current facts only, provenance edges, dependents)", "facts": facts, "dependents": dependents}
+    chains, seen = [], set()
+    for f in facts:
+        for nid, kind in dependents.get(f["id"], []):
+            if kind in ("Task", "Decision") and nid not in seen:
+                seen.add(nid)
+                d = T.detail(nid)
+                chains.append({"id": nid, "kind": kind, "label": d.get("label"), "owner": d.get("owner")})
+    out = {"mode": "graph (Cypher: current facts only, provenance edges, dependents)", "facts": facts,
+           "dependents": dependents, "chains": chains}
     ctx = "\n".join(f"- {f['id']}: {f['text']} (stated in {', '.join(f['sources'])})" for f in facts)
+    ctx += "\n" + "\n".join(f"- downstream {c['kind']} {c['id']}: {c['label']} (owner: {c['owner'] or 'unassigned'})" for c in chains)
     try:
-        out["answer"] = complete("Answer from the graph facts only, briefly. Cite fact ids and source docs.", f"Current facts from the knowledge graph:\n{ctx}\n\nQuestion: {q}")
+        out["answer"] = complete("Answer from the graph facts and downstream items only, briefly. Cite node ids and source docs.", f"Current knowledge-graph data:\n{ctx}\n\nQuestion: {q}")
         out["answer_by"] = provider()
     except LLMUnavailable:
-        out["answer"] = "Current graph facts: " + "; ".join(f"{f['text']} [{f['id']}]" for f in facts); out["answer_by"] = "none (extractive)"
+        out["answer"] = "Current graph facts: " + "; ".join(f"{f['text']} [{f['id']}]" for f in facts)
+        if chains:
+            out["answer"] += "\nDownstream items: " + "; ".join(f"{c['kind']} {c['id']}: {c['label']} (owner: {c['owner'] or 'unassigned'})" for c in chains)
+        out["answer_by"] = "none (extractive)"
     return out
 
 app.mount("/static", StaticFiles(directory=WEB), name="static")

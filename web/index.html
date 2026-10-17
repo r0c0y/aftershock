@@ -42,6 +42,7 @@ input[type=text]{flex:1;background:#0d1117;color:var(--tx);border:1px solid var(
  <div class="col">
   <div class="card" style="height:260px"><h2>Ask the company (graph on vs off)</h2><div class="body">
    <div class="row"><input type="text" id="q" value="What commission rate does Meridian take on our marketplace sales?"><button id="ask">Ask</button></div>
+   <div class="note">Try (multi-hop): <a href="#" id="try1">Who owns the tasks affected by the Meridian commission change?</a></div>
    <div id="ansbox" class="note">Ask before and after the correction, with the graph switch on and off.</div></div></div>
   <div class="card" style="flex:1"><h2>Repair queue <span id="qn" style="color:var(--mut)"></span></h2><div class="body" id="queue"><div class="note">Empty until a correction lands.</div></div></div>
   <div class="card" style="height:150px"><h2>Evidence path</h2><div class="body" id="proof"><div class="note">Click a queue item.</div></div></div>
@@ -79,6 +80,9 @@ $('sw').onclick=()=>{graphOn=!graphOn;$('sw').classList.toggle('on',graphOn);$('
 $('ask').onclick=async()=>{$('ansbox').innerHTML='<div class="note">thinking…</div>';const r=await j('/api/ask?q='+encodeURIComponent($('q').value)+'&graph_on='+graphOn);
  let h=`<div class="note">${r.mode}</div><div class="ans">${(r.answer||'').replace(/</g,'&lt;')}</div><div class="note">answered by: ${r.answer_by}</div>`;
  if(r.retrieved)h+='<div class="note">retrieved: '+r.retrieved.map(x=>x.id+' ('+x.score+')').join(', ')+'</div>';
+ if(r.calls)h+='<div class="note">LLM tool calls: '+r.calls.map(c=>c.tool+'('+Object.values(c.args).join(', ')+')').join(' &rarr; ')+'</div>';
+ if(r.chains)h+='<div class="note">downstream: '+r.chains.map(c=>c.kind+' '+c.id+' ('+(c.owner||'unassigned')+')').join(' · ')+'</div>';
  if(r.facts)h+='<div class="note">graph facts: '+r.facts.map(f=>f.id+' ['+f.sources.join(', ')+']').join(' · ')+'</div>';$('ansbox').innerHTML=h};
+$('try1').onclick=e=>{e.preventDefault();$('q').value='Who owns the tasks affected by the Meridian commission change?';$('ask').click()};
 status().then(loadGraph);
 </script></body></html>

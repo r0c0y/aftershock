@@ -22,6 +22,25 @@ The executed contract says **12%**. Click *Apply correction*:
 4. The 3 decisions with the most downstream dependents are re-judged by an LLM.
 5. The **Graph switch** turns the graph off: the same question answered by flat BM25 retrieval over document text.
 
+## Ask the company (graph on vs off)
+The Ask box answers the same question two ways:
+
+* **Graph on**: with an API key set, the LLM answers by *calling the graph tools* (`search_facts`, `blast_radius`,
+  `path_proof`, `node_detail`, `current_facts`) and may only use what those live Cypher queries return; the UI lists the
+  exact tool calls it made. Without a key it falls back to a labelled extractive answer from the same Cypher queries.
+  Try the multi-hop question: *"Who owns the tasks affected by the Meridian commission change?"* - a Fact -> Decision ->
+  Task -> Person traversal (graph-on names Elena, Tom, Maya, Aisha and Leo with their items).
+* **Graph off**: flat BM25 over the document text. No edges, no states, no owners. On the multi-hop question its top hit
+  is the *unsigned draft* contract and it cannot name a single owner.
+
+## What the A/B does and does not show
+Full write-up in `docs/AB_EVAL.md`. Plainly: the graph side's 11/11 stale-item recall is **by construction** - the edges
+are hand-seeded and the ground truth was hand-labelled by the same author, so the A/B is *not* evidence that edges would
+be extracted correctly from raw documents. The flat side is a deliberately plain BM25 baseline, not a tuned RAG system.
+What the A/B does show, live in the UI: dependents that never mention the corrected number (a billing config, a board
+margin target) are invisible to text search and reachable by traversal, and the traversal leaves the 5 unrelated items
+alone. No benchmark is claimed.
+
 ## Real vs seeded (read this)
 See `docs/REAL_VS_SEEDED.md`. Short version: the company, its 32 documents and the graph edges are **hand-authored seed data**.
 FalkorDB, the traversal, correction semantics, path proofs, repair queue, re-judging and the flat baseline are **real code**.
@@ -38,8 +57,9 @@ python -m pytest tests
 ```
 
 ## Docs
-`docs/GRAPH_MODEL.md` schema and the Cypher for every tool · `docs/ARCHITECTURE.md` · `docs/DECISIONS.md` key design decisions ·
-`docs/REAL_VS_SEEDED.md` · `docs/INSPIRATION.md` prior art and credits · `docs/DEV_ENVIRONMENT.md`.
+`docs/GRAPH_MODEL.md` schema and the Cypher for every tool · `docs/ARCHITECTURE.md` components and request flows ·
+`docs/DECISIONS.md` key design decisions · `docs/AB_EVAL.md` the graph on/off evaluation · `docs/REAL_VS_SEEDED.md` ·
+`docs/INSPIRATION.md` prior art and credits · `docs/DEV_ENVIRONMENT.md` · `docs/BUILD_LOG.md`.
 
 ## AI use disclosure
 Built with AI assistance (an AI agent wrote code and docs under the author's direction). Runtime LLM: Gemini / OpenRouter for re-judging and answers.
