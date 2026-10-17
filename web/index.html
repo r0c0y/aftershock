@@ -25,7 +25,7 @@ main{display:grid;grid-template-columns:1.25fr 1fr;gap:12px;padding:12px;height:
 input[type=text]{flex:1;background:#0d1117;color:var(--tx);border:1px solid var(--line);border-radius:6px;padding:8px}
 .row{display:flex;gap:8px;margin-bottom:8px}.ans{white-space:pre-wrap;background:#0d1117;border:1px solid var(--line);border-radius:6px;padding:8px;margin-top:8px}
 .trace div{font-family:ui-monospace,monospace;font-size:12px;color:#c9d1d9;padding:1px 0}.trace b{color:#58a6ff}
-.note{color:var(--mut);font-size:12px;margin-top:6px}.warnbox{border:1px solid var(--warn);color:var(--warn);border-radius:6px;padding:6px 8px;font-size:12px;margin-bottom:8px}
+.note{color:var(--mut);font-size:12px;margin-top:6px}.note a{color:#58a6ff}.warnbox{border:1px solid var(--warn);color:var(--warn);border-radius:6px;padding:6px 8px;font-size:12px;margin-bottom:8px}
 </style></head><body>
 <header>
  <h1>Aftershock <span>fix one fact, find everything built on it</span></h1><div class="sp"></div>
@@ -40,7 +40,7 @@ input[type=text]{flex:1;background:#0d1117;color:var(--tx);border:1px solid var(
   <div class="card" style="height:190px"><h2>Agent trace</h2><div class="body trace" id="trace"><div style="color:var(--mut)">Waiting for a correction...</div></div></div>
  </div>
  <div class="col">
-  <div class="card" style="height:260px"><h2>Ask the company (graph on vs off)</h2><div class="body">
+  <div class="card" style="height:340px"><h2>Ask the company (graph on vs off)</h2><div class="body">
    <div class="row"><input type="text" id="q" value="What commission rate does Meridian take on our marketplace sales?"><button id="ask">Ask</button></div>
    <div class="note">Try (multi-hop): <a href="#" id="try1">Who owns the tasks affected by the Meridian commission change?</a></div>
    <div id="ansbox" class="note">Ask before and after the correction, with the graph switch on and off.</div></div></div>
