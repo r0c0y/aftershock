@@ -47,3 +47,8 @@
 - Same 13 TTS clips re-aligned to the new timeline (per-scene starts, max gap-aware placement, no overlaps).
 - Final file: aftershock-demo-usage-voiceover.mp4 (4.8 MB). The earlier captioned cut (aftershock-demo-voiceover.mp4)
   remains as an alternative.
+
+## Sun 18 Oct, ~15:05 IST - tightened cut v2
+- User feedback: opening dead air and inter-scene pauses too long. v2 cuts 22.5s of dead air (opening preroll and
+  three static holds), re-places the same 13 voiceover clips on the shortened timeline: gaps now 0.2-0.9s except two
+  ~1.6-2.0s pauses that contain the toggle-click visuals. Final: aftershock-demo-usage-voiceover-v2.mp4 (2:18, 4.7 MB).
