@@ -10,6 +10,12 @@ knowledge in a FalkorDB graph, and when a fact is corrected it traverses the gra
 Built for [Graph Hacks (WeMakeDevs x FalkorDB)](https://www.wemakedevs.org/hackathons/falkordb), Company Brain track
 ("tracing decisions back to their source", "keeping knowledge current as things change").
 
+## Demo
+**[docs/demo.mp4](./docs/demo.mp4)** (2:18) - a real usage recording: both questions typed live, the graph on/off
+switch, the correction, the repair queue and an evidence path. Recorded without an LLM key, so re-judging shows
+`needs_human` honestly instead of a faked verdict; with `GEMINI_API_KEY` or `OPENROUTER_API_KEY` set, the same run
+produces real LLM verdicts and tool-calling Q&A.
+
 > STATUS: work in progress, private repo. Build log is in `docs/BUILD_LOG.md`.
 
 ## The demo in one scene
