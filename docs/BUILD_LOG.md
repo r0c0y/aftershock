@@ -26,3 +26,12 @@
   14 candidates on the seed. Endpoint returns 503 with instructions if the model files are missing.
 - Fixed requirements.txt (listed a nonexistent `embeddinggemma` package; real deps are onnxruntime, tokenizers, numpy).
 - README: model download instructions (models/ is gitignored); scripts/dev_up.sh bring-up script.
+
+## Sun 18 Oct, ~09:10 IST - demo video recorded (no-key fallback)
+- No vault approval overnight: the demo runs in its honest no-key mode (re-judge = needs_human, disclosed on camera).
+- Demo video recorded: 2:22, 1280x720 mp4, captioned scenes per docs/VIDEO_SCRIPT.md (flat-search fail on the draft,
+  correction + blast radius + repair queue + evidence path, multi-hop owner question graph-on vs graph-off, close).
+- Voiceover: captions carry the narration; the user can record his own voice per VIDEO_SCRIPT.md, or request a TTS
+  voiceover from the main agent (speak is main-only).
+- Infra note: uvicorn was OOM-killed mid-first-attempt (2 GB sandbox + Chrome); dev_up.sh recovered; second attempt
+  at 720p succeeded. Video file is NOT in the repo (2 MB deliverable, handed to the user directly).
