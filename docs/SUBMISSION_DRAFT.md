@@ -41,9 +41,7 @@ Built with AI assistance (an AI agent wrote code and docs under the author's dir
 and can explain every part.
 
 ## Links
-- Repo: (public GitHub link - after push)
-- Demo video: docs/demo.mp4 in the repo itself - GitHub plays it inline at
-  https://github.com/r0c0y/aftershock/blob/master/docs/demo.mp4 once public (fill in the account after the push).
-  Optional upgrade: a YouTube-unlisted upload from his Google account if he prefers; the in-repo link needs nothing extra.
+- Repo: https://github.com/r0c0y/aftershock
+- Demo video (plays inline on GitHub): https://github.com/r0c0y/aftershock/blob/master/docs/demo.mp4
 - Local run: docker run -d -p 6379:6379 falkordb/falkordb:latest + pip install -r requirements.txt +
   python -m aftershock.seed + uvicorn aftershock.api:app --port 8000 (details in README)
